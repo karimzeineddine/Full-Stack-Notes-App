@@ -1,0 +1,3 @@
+{
+    "connectionString":"mongodb+srv://karim:karimpassword@notes.gyogy.mongodb.net/?retryWrites=true&w=majority&appName=notes"
+}
