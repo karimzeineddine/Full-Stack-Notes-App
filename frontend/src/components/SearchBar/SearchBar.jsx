@@ -18,7 +18,7 @@ const SearchBar = ({value, onChange, handleSearch, onClearSearch}) => {
         {value && (
             <IoMdClose className='text-xl text-slate-500 curor-pointer hover:text-black mr-2' onClick={onClearSearch} />
         )}
-        <FontAwesomeIcon icon={faMagnifyingGlass} className="text-slate-400 cursor-pointer hover:text-black" onlClick={handleSearch}/>
+<FontAwesomeIcon icon={faMagnifyingGlass} className="text-slate-400 cursor-pointer hover:text-black" onClick={handleSearch} />
         
     </div>
   )

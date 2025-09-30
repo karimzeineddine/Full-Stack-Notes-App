@@ -6,6 +6,8 @@ const User = require('./models/user.model')
 const Note = require('./models/note.model')
 
 mongoose.connect(config.connectionString)
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch(err => console.error("❌ MongoDB error:", err));
 
 const express = require('express')
 const cors = require('cors');
@@ -46,7 +48,7 @@ app.post('/create-account', async (req, res) => {
     }
     const user = new User({ fullName, email, password });
     await user.save();
-    const accessToken = jwt.sign({ user }, process.env.JWT_SECRET, { expiresIn: '36000m' });
+    const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '36000m' });
     return res.json({
         error: false,
         message: 'User registered successfully.',
@@ -70,7 +72,7 @@ app.post('/login', async (req, res) => {
     }
     if (userInfo.email == email && userInfo.password == password) {
         const user = { user: userInfo }
-        const accessToken = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '36000m' });
+        const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '36000m' });
         return res.json({
             error: false,
             message: 'User logged in successfully.',
@@ -226,5 +228,35 @@ app.put('/update-note-pinned/:notId', authenticateToken, async (req, res) => {
     }
 });
 
-app.listen(8000);
-module.exports = app;
+app.get('/search-notes/', authenticateToken, async(req,res)=>{
+    const {user} = req.user;
+    const {query} = req.query;
+
+    if(!query){
+        return res.status(400).json({error: true, message: 'Please provide a search query.'});
+    }
+    try{
+        const matchingNotes = await Note.find({
+            userId: user._id,
+            $or: [
+                {title: new RegExp(query, 'i')},
+                {content: new RegExp(query, 'i')},
+                {tags: {$in: query.split(',').map(tag=>tag.trim())}}
+            ],
+        });
+        return res.json({
+            error: false,
+            message: 'Notes fetched successfully.',
+            notes: matchingNotes
+        });
+    }
+    catch(error){
+        return res.status(500).json({error: true, message: 'Internal Server Error'});
+    }
+})
+
+// Start server with log
+const PORT = 8000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
+});

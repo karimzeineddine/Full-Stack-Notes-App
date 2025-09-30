@@ -1,7 +1,7 @@
-const mongoose = require ("mongoose");
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const noteSchema =new Schema ({
+const noteSchema = new Schema({
     title: {
         type: String,
         required: true
@@ -12,14 +12,15 @@ const noteSchema =new Schema ({
     },
     tags: {
         type: [String],
-        default:[]
+        default: []
     },
     isPinned: {
         type: Boolean,
         default: false
     },
     userId: {
-        type:String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User', // Reference to the User model
         required: true
     },
     createdAt: {
